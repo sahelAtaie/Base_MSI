@@ -67,6 +67,7 @@ machine(MachineType:Directory, "MESI Two Level directory protocol")
     DMA_READ, desc="A DMA Read memory request";
     DMA_WRITE, desc="A DMA Write memory request";
     CleanReplacement, desc="Clean Replacement in L2 cache";
+    L2WriteBack, desc="writeback data from L1";
 
   }
 
@@ -220,6 +221,8 @@ machine(MachineType:Directory, "MESI Two Level directory protocol")
         assert(in_msg.Destination.isElement(machineID));
         if (in_msg.Type == CoherenceResponseType:MEMORY_DATA) {
           trigger(Event:Data, in_msg.addr, TBEs[in_msg.addr]);
+        } else if (in_msg.Type == CoherenceResponseType:DATA) {
+          trigger(Event:L2WriteBack, in_msg.addr, TBEs[in_msg.addr]);
         } else if (in_msg.Type == CoherenceResponseType:ACK) {
           trigger(Event:CleanReplacement, in_msg.addr, TBEs[in_msg.addr]);
         } else {
@@ -477,6 +480,16 @@ machine(MachineType:Directory, "MESI Two Level directory protocol")
   transition(M, Data, MI) {
     qw_queueMemoryWBRequest;
     k_popIncomingResponseQueue;
+  }
+
+  transition(M, L2WriteBack) {
+    qw_queueMemoryWBRequest;
+    k_popIncomingResponseQueue;
+  }
+
+  transition(M, Memory_Ack) {
+    aa_sendAck;
+    l_popMemQueue;
   }
 
   transition(MI, Memory_Ack, I) {
