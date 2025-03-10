@@ -813,7 +813,7 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
     jj_popL1RequestQueue;
   }
 
-  transition({IM, IS, SS_MB, MT_MB, MT_IIB, MT_IB, MT_SB}, {L2_Replacement, L2_Replacement_clean}) {
+  transition({IM, IS, SS_MB, MT_MB, MT_IIB, MT_IB, MT_SB, SSW}, {L2_Replacement, L2_Replacement_clean}) {
     zz_stallAndWaitL1RequestQueue;
   }
 
